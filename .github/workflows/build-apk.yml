@@ -1,0 +1,49 @@
+name: Build GH SPEED ALERT APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Create Android project
+        run: |
+          flutter create --platforms=android --project-name gh_speed_alert build_project
+          cp pubspec.yaml build_project/pubspec.yaml
+          rm -rf build_project/lib
+          cp -r lib build_project/lib
+          mkdir -p build_project/android/app/src/main
+          cp android/app/src/main/AndroidManifest.xml build_project/android/app/src/main/AndroidManifest.xml
+
+      - name: Get packages
+        working-directory: build_project
+        run: flutter pub get
+
+      - name: Build APK
+        working-directory: build_project
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: gh-speed-alert-2-apk
+          path: build_project/build/app/outputs/flutter-apk/app-release.apk
