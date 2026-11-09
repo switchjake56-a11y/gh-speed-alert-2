@@ -68,8 +68,9 @@ class _DashboardState extends State<Dashboard> {
     subscription = Geolocator.getPositionStream(
       locationSettings: settings,
     ).listen((Position position) {
-      final currentSpeed =
-          (position.speed * 3.6).clamp(0.0, 300.0);
+      final double currentSpeed =
+          (position.speed * 3.6).clamp(0.0, 300.0).toDouble();
+  
 
       setState(() {
         speed = currentSpeed;
